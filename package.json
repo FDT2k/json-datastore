@@ -1,0 +1,11 @@
+{
+  "name": "json-datastore",
+  "version": "0.1.0",
+  "description": "File-based JSON datastore",
+  "main": "index.js",
+  "author": "Steve Randy Tantra",
+  "license": "MIT",
+  "dependencies": {
+    "pify": "^2.3.0"
+  }
+}
