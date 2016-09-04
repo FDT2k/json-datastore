@@ -6,6 +6,7 @@
   "author": "Steve Randy Tantra",
   "license": "MIT",
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "pify": "^2.3.0"
   }
 }

@@ -1,9 +1,11 @@
 let fs = require("fs")
 let path = require("path")
 let pify = require("pify")
+let mkdirp = require("mkdirp")
 
 // Promisify fs functions
 fs = pify(fs)
+fs.mkdirp = pify(mkdirp)
 
 let readJsonFile = (file, options) => {
   return new Promise((resolve, reject) => {
@@ -21,14 +23,6 @@ let writeJsonFile = (file, data, options) => {
     fs.writeFile(file, data, options)
     .then(data => resolve())
     .catch(error => reject(error))
-  })
-}
-
-let ensurePath = path => {
-  return new Promise((resolve, reject) => {
-    fs.stat(path).then(resolve).catch(() => {
-      fs.mkdir(path).then(resolve).catch(reject)
-    })
   })
 }
 
@@ -92,19 +86,22 @@ let read = (storePath, query = {}, options = {}) => {
   }
 }
 
-let write = (storePath, object = {}) => {
+let write = (storePath, object = {}, options = {}) => {
   if (Object.keys(object) < 1) return false
-  return ensurePath(storePath).then(() => {
-    if (object._id == null) {
-      object._id = generateDefaultId()
-    }
-    let file = `${storePath}/${object._id}.json`
-    let tempext = `.temp${process.pid}${generateDefaultId()}`
-    let tempfile = file + tempext
-    return writeJsonFile(tempfile, object).then(() => {
-      return fs.rename(tempfile, file)
-    }).then(() => object)
-  })
+  if (object._id == null) {
+    object._id = generateDefaultId()
+  }
+  let file = `${storePath}/${object._id}.json`
+  let tempext = `.temp${process.pid}${generateDefaultId()}`
+  let tempfile = file + tempext
+  let writePromise = writeJsonFile(tempfile, object).then(() => {
+    return fs.rename(tempfile, file)
+  }).then(() => object)
+  if (options.mkdirp === true) {
+    return fs.mkdirp(storePath).then(() => writePromise)
+  } else {
+    return writePromise
+  }
 }
 
 let remove = (storePath, query = {}) => {
