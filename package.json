@@ -1,6 +1,6 @@
 {
   "name": "json-datastore",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "File-based JSON datastore",
   "main": "index.js",
   "author": "Steve Randy Tantra",
