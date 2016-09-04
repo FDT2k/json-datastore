@@ -5,8 +5,15 @@
   "main": "index.js",
   "author": "Steve Randy Tantra",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "mkdirp": "^0.5.1",
     "pify": "^2.3.0"
+  },
+  "devDependencies": {
+    "jest": "^15.1.1",
+    "rimraf": "^2.5.4"
   }
 }
