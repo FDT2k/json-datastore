@@ -1,7 +1,7 @@
 let fs = require("fs")
 let pify = require("pify")
 let rimraf = require("rimraf")
-let jsonDatastore = require("./index")
+let jsonDatastore = require("./../src/index")
 let datastorePath = `${process.cwd()}/tmp/datastore`
 
 fs = pify(fs)

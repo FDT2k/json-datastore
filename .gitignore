@@ -3,4 +3,5 @@
 .tmp
 tmp
 tags
+lib
 node_modules

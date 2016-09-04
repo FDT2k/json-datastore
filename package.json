@@ -2,17 +2,25 @@
   "name": "json-datastore",
   "version": "0.1.3",
   "description": "File-based JSON datastore",
-  "main": "index.js",
+  "main": "lib/index.js",
   "author": "Steve Randy Tantra",
   "license": "MIT",
+  "files": [
+    "lib",
+    "src"
+  ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "babel src --out-dir lib",
+    "prepublish": "npm run test && npm run build"
   },
   "dependencies": {
     "mkdirp": "^0.5.1",
     "pify": "^2.3.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
     "jest": "^15.1.1",
     "rimraf": "^2.5.4"
   }
