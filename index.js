@@ -113,11 +113,11 @@ let remove = (storePath, query = {}) => {
     return fs.readdir(storePath).then(files => {
       if (Object.keys(query).length < 1) {
         let unlinkPromises = files.map(file => {
-          return fs.unlink(`${storePath}/${file}`).then(() => {
-            return fs.rmdir(storePath)
-          })
+          return fs.unlink(`${storePath}/${file}`)
         })
-        return Promise.all(unlinkPromises)
+        return Promise.all(unlinkPromises).then(() => {
+          return fs.rmdir(storePath)
+        })
       } else {
         return read(storePath, query).then(objects => {
           let unlinkPromises = objects.map(object => {
