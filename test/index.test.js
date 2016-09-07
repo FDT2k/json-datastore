@@ -45,7 +45,10 @@ test("write to an exisiting file (update)", () => {
   return jsonDatastore.write(datastorePath, data, options).then(() => {
     data.string = "hello-updated"
     return jsonDatastore.write(datastorePath, data, options).then(_data => {
-      return expect(_data).toEqual(data)
+      return jsonDatastore.read(datastorePath).then(array => {
+        expect(array.length).toBe(1)
+        expect(array[0]).toEqual(data)
+      })
     })
   })
 })
