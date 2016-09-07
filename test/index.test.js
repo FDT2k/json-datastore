@@ -39,6 +39,17 @@ test("write with mkdirp", () => {
   })
 })
 
+test("write to an exisiting file (update)", () => {
+  let data = {_id: 1, string: "hello"}
+  let options = {mkdirp: true}
+  return jsonDatastore.write(datastorePath, data, options).then(() => {
+    data.string = "hello-updated"
+    return jsonDatastore.write(datastorePath, data, options).then(_data => {
+      return expect(_data).toEqual(data)
+    })
+  })
+})
+
 test("read by id", () => {
   let data = {_id: 1, string: "hello"}
   let options = {mkdirp: true}
