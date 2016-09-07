@@ -5,6 +5,17 @@
   "main": "lib/index.js",
   "author": "Steve Randy Tantra",
   "license": "MIT",
+  "repository": "steverandy/json-datastore",
+  "homepage": "https://github.com/steverandy/json-datastore",
+  "bugs": {
+    "url": "https://github.com/steverandy/json-datastore/issues"
+  },
+  "keywords": [
+    "file",
+    "json",
+    "store",
+    "datastore"
+  ],
   "files": [
     "lib",
     "src"
