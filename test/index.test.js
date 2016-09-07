@@ -15,14 +15,14 @@ afterEach(() => {
   return rimraf(datastorePath)
 })
 
-test("write with non-exisiting path", () => {
+test("write to a non-exisiting path", () => {
   let data = {_id: 1, string: "hello"}
   return jsonDatastore.write(datastorePath, data).catch(error => {
     return expect(error.code).toBe("ENOENT")
   })
 })
 
-test("write with exisiting path", () => {
+test("write to an exisiting path", () => {
   let data = {_id: 1, string: "hello"}
   return fs.mkdir(datastorePath).then(() => {
     return jsonDatastore.write(datastorePath, data).then(_data => {
