@@ -92,11 +92,11 @@ let write = (storePath, object = {}, options = {}) => {
     object._id = generateDefaultId()
   }
   let file = `${storePath}/${object._id}.json`
-  let tempext = `.temp${process.pid}${generateDefaultId()}`
-  let tempfile = file + tempext
+  let tmpExt = `.tmp{process.pid}${generateDefaultId()}`
+  let tmpFile = file + tmpExt
   let write = () => {
-    return writeJsonFile(tempfile, object).then(() => {
-      return fs.rename(tempfile, file)
+    return writeJsonFile(tmpFile, object).then(() => {
+      return fs.rename(tmpFile, file)
     }).then(() => object)
   }
   if (options.mkdirp === true) {
