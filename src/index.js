@@ -94,7 +94,7 @@ let write = (storePath, object = {}, options = {}) => {
     object._id = generateDefaultId()
   }
   let file = `${storePath}/${object._id}.json`
-  let tmpExt = `.tmp{process.pid}${generateDefaultId()}`
+  let tmpExt = `.tmp${process.pid}${generateDefaultId()}`
   let tmpFile = file + tmpExt
   let write = () => {
     return writeJsonFile(tmpFile, object).then(() => {
