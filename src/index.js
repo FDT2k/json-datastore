@@ -71,7 +71,9 @@ let read = (storePath, query = {}, options = {}) => {
     return fs.readdir(storePath).then(files => {
       let jsonFiles = files.filter(file => path.extname(file) === ".json")
       let tmpFiles = files.filter(file => path.extname(file).indexOf(".tmp") === 0)
-      tmpFiles.forEach(file => fs.unlink(`${storePath}/${file}`))
+      tmpFiles.forEach((file) => {
+        fs.unlink(`${storePath}/${file}`).catch(() => {});
+      });
       let readPromises = jsonFiles.map(file => {
         let _id = path.basename(file, ".json")
         return read(storePath, {_id})
