@@ -2,10 +2,12 @@ let fs = require("fs")
 let path = require("path")
 let pify = require("pify")
 let mkdirp = require("mkdirp")
+let writeFileAtomic = require("write-file-atomic")
 
 // Promisify fs functions
 fs = pify(fs)
 fs.mkdirp = pify(mkdirp)
+writeFileAtomic = pify(writeFileAtomic)
 
 let readJsonFile = (file, options) => {
   return new Promise((resolve, reject) => {
@@ -20,17 +22,10 @@ let readJsonFile = (file, options) => {
 let writeJsonFile = (file, data, options) => {
   return new Promise((resolve, reject) => {
     data = JSON.stringify(data)
-    fs.writeFile(file, data, options)
+    writeFileAtomic(file, data, options)
     .then(data => resolve())
     .catch(error => reject(error))
   })
-}
-
-let generateDefaultId = () => {
-  let timestamp = (new Date().getTime() / 1000 | 0).toString(16)
-  return timestamp + "xxxxxxxxxxxxxxxx".replace(/[x]/g, () => {
-    return (Math.random() * 16 | 0).toString(16)
-  }).toLowerCase()
 }
 
 let filterObjects = (objects, query) => {
@@ -96,12 +91,8 @@ let write = (storePath, object = {}, options = {}) => {
     object._id = generateDefaultId()
   }
   let file = `${storePath}/${object._id}.json`
-  let tmpExt = `.tmp${process.pid}${generateDefaultId()}`
-  let tmpFile = file + tmpExt
   let write = () => {
-    return writeJsonFile(tmpFile, object).then(() => {
-      return fs.rename(tmpFile, file)
-    }).then(() => object)
+    return writeJsonFile(file, object).then(() => object)
   }
   if (options.mkdirp === true) {
     return fs.mkdirp(storePath).then(write)
