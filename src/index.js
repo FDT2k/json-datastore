@@ -1,13 +1,15 @@
 let fs = require("fs");
 let path = require("path");
-let pify = require("pify");
 let mkdirp = require("mkdirp");
+let promisify = require("util.promisify");
 let writeFileAtomic = require("write-file-atomic");
 
-// Promisify fs functions
-fs = pify(fs);
-fs.mkdirp = pify(mkdirp);
-writeFileAtomic = pify(writeFileAtomic);
+mkdirp = promisify(mkdirp);
+writeFileAtomic = promisify(writeFileAtomic);
+let readFile = promisify(fs.readFile);
+let readdir = promisify(fs.readdir);
+let unlink = promisify(fs.unlink);
+let rmdir = promisify(fs.rmdir);
 
 function generateDefaultId() {
   let timestamp = (new Date().getTime() / 1000 | 0).toString(16);
@@ -18,7 +20,7 @@ function generateDefaultId() {
 
 let readJsonFile = (file, options) => {
   return new Promise((resolve, reject) => {
-    fs.readFile(file, options).then(data => {
+    readFile(file, options).then(data => {
       try {
         data = JSON.parse(data);
       }
@@ -79,11 +81,11 @@ let read = (storePath, query = {}, options = {}) => {
       return null;
     });
   } else {
-    return fs.readdir(storePath).then((files) => {
+    return readdir(storePath).then((files) => {
       let jsonFiles = files.filter(file => path.extname(file) === ".json");
       let tmpFiles = files.filter(file => path.extname(file).indexOf(".tmp") === 0);
       tmpFiles.forEach((file) => {
-        fs.unlink(`${storePath}/${file}`).catch(() => {});
+        unlink(`${storePath}/${file}`).catch(() => {});
       });
       let readPromises = jsonFiles.map((file) => {
         let _id = path.basename(file, ".json");
@@ -117,7 +119,7 @@ let write = (storePath, object = {}, options = {}) => {
     });
   };
   if (options.mkdirp === true) {
-    return fs.mkdirp(storePath).then(write);
+    return mkdirp(storePath).then(write);
   } else {
     return write();
   }
@@ -125,24 +127,24 @@ let write = (storePath, object = {}, options = {}) => {
 
 let remove = (storePath, query = {}) => {
   if (query._id) {
-    return fs.unlink(`${storePath}/${query._id}.json`).then(() => {
+    return unlink(`${storePath}/${query._id}.json`).then(() => {
       return true;
     }).catch((error) => {
       return false;
     });
   } else {
-    return fs.readdir(storePath).then((files) => {
+    return readdir(storePath).then((files) => {
       if (Object.keys(query).length < 1) {
         let unlinkPromises = files.map(file => {
-          return fs.unlink(`${storePath}/${file}`);
+          return unlink(`${storePath}/${file}`);
         });
         return Promise.all(unlinkPromises).then(() => {
-          return fs.rmdir(storePath).then(() => true);
+          return rmdir(storePath).then(() => true);
         });
       } else {
         return read(storePath, query).then((objects) => {
           let unlinkPromises = objects.map((object) => {
-            return fs.unlink(`${storePath}/${object._id}.json`);
+            return unlink(`${storePath}/${object._id}.json`);
           });
           return Promise.all(unlinkPromises).then(() => true);
         });

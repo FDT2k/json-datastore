@@ -1,11 +1,11 @@
 let fs = require("fs");
-let pify = require("pify");
+let promisify = require("util.promisify");
 let rimraf = require("rimraf");
 let jsonDatastore = require("./../src/index");
 let datastorePath = `${process.cwd()}/tmp/datastore`;
 
-fs = pify(fs);
-rimraf = pify(rimraf);
+rimraf = promisify(rimraf);
+let mkdir = promisify(fs.mkdir);
 
 beforeEach(() => {
   return rimraf(datastorePath);
@@ -53,7 +53,7 @@ describe("write", () => {
 
   test("write to an exisiting path", async () => {
     let data = {_id: 1, string: "hello"};
-    await fs.mkdir(datastorePath);
+    await mkdir(datastorePath);
     let result = await jsonDatastore.write(datastorePath, data);
     expect(result).toEqual(data);
   });
