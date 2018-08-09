@@ -117,15 +117,13 @@ let remove = (storePath, query = {}) => {
       return false
     })
   } else {
-    return fs.readdir(storePath).then(files => {
+    return fs.readdir(storePath).then((files) => {
       if (Object.keys(query).length < 1) {
         let unlinkPromises = files.map(file => {
           return fs.unlink(`${storePath}/${file}`)
         })
         return Promise.all(unlinkPromises).then(() => {
           return fs.rmdir(storePath).then(() => true)
-        }).catch((error) => {
-          return false
         })
       } else {
         return read(storePath, query).then((objects) => {
@@ -133,10 +131,10 @@ let remove = (storePath, query = {}) => {
             return fs.unlink(`${storePath}/${object._id}.json`)
           })
           return Promise.all(unlinkPromises).then(() => true)
-        }).catch((error) => {
-          return false
         })
       }
+    }).catch((error) => {
+      return false
     })
   }
 }
