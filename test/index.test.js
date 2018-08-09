@@ -65,6 +65,14 @@ describe("write", () => {
     expect(result).toEqual(data);
   });
 
+  test("write without _id", async () => {
+    let data = {string: "hello"};
+    let options = {mkdirp: true};
+    let result = await jsonDatastore.write(datastorePath, data, options);
+    expect(result._id).toHaveLength(24);
+    expect(result.string).toEqual(data.string);
+  });
+
   test("write to an exisiting file (update)", async () => {
     let data = {_id: 1, string: "hello"};
     let options = {mkdirp: true};
