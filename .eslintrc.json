@@ -1,0 +1,26 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "ecmaFeatures": {
+      "globalReturn": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true,
+    "jest/globals": true
+  },
+  "plugins": [
+    "jest"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended"
+  ],
+  "rules": {
+    "semi": "warn",
+    "no-console": "warn",
+    "no-unused-vars": ["error", {"vars": "all", "args": "none"}]
+  }
+}
