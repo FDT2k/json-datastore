@@ -15,92 +15,77 @@ afterEach(() => {
   return rimraf(datastorePath)
 })
 
-test("write to a non-exisiting path", () => {
+test("write to a non-exisiting path", async () => {
   let data = {_id: 1, string: "hello"}
-  return jsonDatastore.write(datastorePath, data).catch(error => {
-    expect(error.code).toBe("ENOENT")
-  })
+  let result = await jsonDatastore.write(datastorePath, data)
+  expect(result).toBe(false)
 })
 
-test("write to an exisiting path", () => {
+test("write to an exisiting path", async () => {
   let data = {_id: 1, string: "hello"}
-  return fs.mkdir(datastorePath).then(() => {
-    return jsonDatastore.write(datastorePath, data).then(_data => {
-      expect(_data).toEqual(data)
-    })
-  })
+  await fs.mkdir(datastorePath)
+  let result = await jsonDatastore.write(datastorePath, data)
+  expect(result).toEqual(data)
 })
 
-test("write with mkdirp", () => {
+test("write with mkdirp", async () => {
   let data = {_id: 1, string: "hello"}
   let options = {mkdirp: true}
-  return jsonDatastore.write(datastorePath, data, options).then(_data => {
-    expect(_data).toEqual(data)
-  })
+  let result = await jsonDatastore.write(datastorePath, data, options)
+  expect(result).toEqual(data)
 })
 
-test("write to an exisiting file (update)", () => {
+test("write to an exisiting file (update)", async () => {
   let data = {_id: 1, string: "hello"}
   let options = {mkdirp: true}
-  return jsonDatastore.write(datastorePath, data, options).then(() => {
-    data.string = "hello-updated"
-    return jsonDatastore.write(datastorePath, data, options).then(_data => {
-      return jsonDatastore.read(datastorePath).then(array => {
-        expect(array.length).toBe(1)
-        expect(array[0]).toEqual(data)
-      })
-    })
-  })
+  await jsonDatastore.write(datastorePath, data, options)
+  data.string = "hello-updated"
+  let writeResult = await jsonDatastore.write(datastorePath, data, options)
+  let readResult = await jsonDatastore.read(datastorePath)
+  expect(readResult.length).toBe(1)
+  expect(readResult[0]).toEqual(data)
 })
 
-test("read by id", () => {
+test("read by id", async () => {
   let data = {_id: 1, string: "hello"}
   let options = {mkdirp: true}
-  return jsonDatastore.write(datastorePath, data, options).then(() => {
-    return jsonDatastore.read(datastorePath, {_id: 1}).then(_data => {
-      expect(_data).toEqual(data)
-    })
-  })
+  await jsonDatastore.write(datastorePath, data, options)
+  let result = await jsonDatastore.read(datastorePath, {_id: 1})
+  expect(result).toEqual(data)
 })
 
-test("read all", () => {
+test("read all", async () => {
   let data1 = {_id: 1, string: "hello"}
   let data2 = {_id: 2, string: "world"}
   let options = {mkdirp: true}
-  return Promise.all([
+  await Promise.all([
     jsonDatastore.write(datastorePath, data1, options),
     jsonDatastore.write(datastorePath, data2, options)
-  ]).then(() => {
-    return jsonDatastore.read(datastorePath).then(_data => {
-      expect(_data.length).toBe(2)
-    })
-  })
+  ])
+  let result = await jsonDatastore.read(datastorePath)
+  expect(result.length).toBe(2)
 })
 
-test("remove by id", () => {
+test("remove by id", async () => {
   let data = {_id: 1, string: "hello"}
   let options = {mkdirp: true}
-  return jsonDatastore.write(datastorePath, data, options).then(() => {
-    return jsonDatastore.remove(datastorePath, {_id: 1}).then(() => {
-      return jsonDatastore.read(datastorePath, {_id: 1}).catch(error => {
-        expect(error.code).toBe("ENOENT")
-      })
-    })
-  })
+  await jsonDatastore.write(datastorePath, data, options)
+  let result = await jsonDatastore.remove(datastorePath, {_id: 1})
+  expect(result).toBe(true)
+  result = await jsonDatastore.read(datastorePath, {_id: 1})
+  expect(result).toBe(null)
 })
 
-test("remove all", () => {
+test("remove all", async () => {
   let data1 = {_id: 1, string: "hello"}
   let data2 = {_id: 2, string: "world"}
   let options = {mkdirp: true}
-  return Promise.all([
+  await Promise.all([
     jsonDatastore.write(datastorePath, data1, options),
     jsonDatastore.write(datastorePath, data2, options)
-  ]).then(() => {
-    return jsonDatastore.remove(datastorePath).then(() => {
-      return jsonDatastore.read(datastorePath).catch(error => {
-        expect(error.code).toBe("ENOENT")
-      })
-    })
-  })
+  ])
+  let result = await jsonDatastore.remove(datastorePath)
+  expect(result).toBe(true)
+  result = await jsonDatastore.read(datastorePath)
+  expect(result).toBe(null)
 })

@@ -58,22 +58,24 @@ let read = (storePath, query = {}, options = {}) => {
   }
   options = Object.assign(defaultOptions, options)
   if (query._id) {
-    return fs.readFile(`${storePath}/${query._id}.json`).then(data => {
+    return fs.readFile(`${storePath}/${query._id}.json`).then((data) => {
       if (data == null || data.length < 1) return null
       return JSON.parse(data)
+    }).catch((error) => {
+      return null
     })
   } else {
-    return fs.readdir(storePath).then(files => {
+    return fs.readdir(storePath).then((files) => {
       let jsonFiles = files.filter(file => path.extname(file) === ".json")
       let tmpFiles = files.filter(file => path.extname(file).indexOf(".tmp") === 0)
       tmpFiles.forEach((file) => {
         fs.unlink(`${storePath}/${file}`).catch(() => {});
       });
-      let readPromises = jsonFiles.map(file => {
+      let readPromises = jsonFiles.map((file) => {
         let _id = path.basename(file, ".json")
         return read(storePath, {_id})
       })
-      return Promise.all(readPromises).then(objects => {
+      return Promise.all(readPromises).then((objects) => {
         objects = filterObjects(objects, query)
         if (options.sort) {
           let {descending} = options
@@ -81,6 +83,8 @@ let read = (storePath, query = {}, options = {}) => {
         }
         return objects
       })
+    }).catch((error) => {
+      return null
     })
   }
 }
@@ -92,7 +96,11 @@ let write = (storePath, object = {}, options = {}) => {
   }
   let file = `${storePath}/${object._id}.json`
   let write = () => {
-    return writeJsonFile(file, object).then(() => object)
+    return writeJsonFile(file, object).then(() => {
+      return object
+    }).catch((error) => {
+      return false
+    })
   }
   if (options.mkdirp === true) {
     return fs.mkdirp(storePath).then(write)
@@ -103,7 +111,11 @@ let write = (storePath, object = {}, options = {}) => {
 
 let remove = (storePath, query = {}) => {
   if (query._id) {
-    return fs.unlink(`${storePath}/${query._id}.json`)
+    return fs.unlink(`${storePath}/${query._id}.json`).then(() => {
+      return true
+    }).catch((error) => {
+      return false
+    })
   } else {
     return fs.readdir(storePath).then(files => {
       if (Object.keys(query).length < 1) {
@@ -111,14 +123,18 @@ let remove = (storePath, query = {}) => {
           return fs.unlink(`${storePath}/${file}`)
         })
         return Promise.all(unlinkPromises).then(() => {
-          return fs.rmdir(storePath)
+          return fs.rmdir(storePath).then(() => true)
+        }).catch((error) => {
+          return false
         })
       } else {
-        return read(storePath, query).then(objects => {
-          let unlinkPromises = objects.map(object => {
+        return read(storePath, query).then((objects) => {
+          let unlinkPromises = objects.map((object) => {
             return fs.unlink(`${storePath}/${object._id}.json`)
           })
-          return Promise.all(unlinkPromises)
+          return Promise.all(unlinkPromises).then(() => true)
+        }).catch((error) => {
+          return false
         })
       }
     })
