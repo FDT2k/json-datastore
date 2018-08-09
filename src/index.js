@@ -18,7 +18,7 @@ function generateDefaultId() {
   }).toLowerCase();
 }
 
-let readJsonFile = (file, options) => {
+function readJsonFile(file, options) {
   return new Promise((resolve, reject) => {
     readFile(file, options).then(data => {
       try {
@@ -32,9 +32,9 @@ let readJsonFile = (file, options) => {
       reject(error);
     });
   });
-};
+}
 
-let writeJsonFile = (file, data, options) => {
+function writeJsonFile(file, data, options) {
   return new Promise((resolve, reject) => {
     data = JSON.stringify(data);
     writeFileAtomic(file, data, options).then((data) => {
@@ -43,9 +43,9 @@ let writeJsonFile = (file, data, options) => {
       reject(error);
     });
   });
-};
+}
 
-let filterObjects = (objects, query) => {
+function filterObjects(objects, query) {
   let queryKeys = Object.keys(query);
   return objects.filter(object => {
     let matches = 0;
@@ -56,9 +56,9 @@ let filterObjects = (objects, query) => {
     });
     return queryKeys.length === matches;
   });
-};
+}
 
-let sortObjects = (objects, sortKey, options = {}) => {
+function sortObjects(objects, sortKey, options = {}) {
   let returnValues = [1, -1];
   if (options.descending === true) {
     returnValues = returnValues.reverse();
@@ -67,9 +67,9 @@ let sortObjects = (objects, sortKey, options = {}) => {
     if (x[sortKey] > y[sortKey]) return returnValues[0];
     else return returnValues[1];
   });
-};
+}
 
-let read = (storePath, query = {}, options = {}) => {
+function read(storePath, query = {}, options = {}) {
   let defaultOptions = {
     descending: false
   };
@@ -103,9 +103,9 @@ let read = (storePath, query = {}, options = {}) => {
       return null;
     });
   }
-};
+}
 
-let write = (storePath, object = {}, options = {}) => {
+function write(storePath, object = {}, options = {}) {
   if (Object.keys(object) < 1) return false;
   if (object._id == null) {
     object._id = generateDefaultId();
@@ -123,9 +123,9 @@ let write = (storePath, object = {}, options = {}) => {
   } else {
     return write();
   }
-};
+}
 
-let remove = (storePath, query = {}) => {
+function remove(storePath, query = {}) {
   if (query._id) {
     return unlink(`${storePath}/${query._id}.json`).then(() => {
       return true;
@@ -153,6 +153,6 @@ let remove = (storePath, query = {}) => {
       return false;
     });
   }
-};
+}
 
 module.exports = {read, write, remove};
